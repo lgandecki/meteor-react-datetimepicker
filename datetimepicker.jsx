@@ -3,7 +3,8 @@ ReactDatetimePicker = React.createClass({
     configuration: React.PropTypes.string,
     inputProps: React.PropTypes.any,
     value: React.PropTypes.string,
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    extra: React.PropTypes.object
   },
   input (){
     return $(React.findDOMNode(this.refs.input));
@@ -15,22 +16,28 @@ ReactDatetimePicker = React.createClass({
         defaults = DatetimePicker.configurations[this.props.configuration];
       }
     }
-    var opts = _.extend({}, defaults, this.props.extra);
+    var opts = _.extend({}, defaults || {}, this.props.extra || {});
     this.input()
       .datetimepicker(opts)
       .on('dp.change', this.onChange)
       .val(this.props.value);
   },
   componentDidUpdate(){
-    this.input().val(this.props.value);
+    this.input().off('dp.change').val(this.props.value).on('dp.change', this.onChange);
   },
   shouldComponentUpdate(nextProps, nextState){
     return this.props.value !== nextProps.value;
   },
   onChange(e){
+    var format = this.input().data("DateTimePicker").format();
+
+    // This might be expensive, but lets prevent
+    // spurious updates
+    if (this.props.value === e.date.format(format)){
+      return;
+    }
     this.props.onChange(e.date);
   },
-  noop(){},
   render() {
     return (<div className="position-relative">
       <input {...this.props.inputProps} ref="input" type="text" />
