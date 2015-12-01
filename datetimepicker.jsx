@@ -36,7 +36,7 @@ ReactDatetimePicker = React.createClass({
     if (this.props.value === e.date.format(format)){
       return;
     }
-    this.props.onChange(e.date);
+    this.props.onChange(e, e.date);
   },
   render() {
     return (<div className="position-relative">
